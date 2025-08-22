@@ -84,9 +84,7 @@ app.post("/ingest", async (req, res) => {
       console.error(`Working on file: ${file}`);
       const full = path.join(KB_DIR, file);
       const text = fs.readFileSync(full, "utf8");
-      console.error("Before chunkText command");
       const chunks = chunkText(text);
-      console.error("After chunkText command");
       console.error(`File: ${file} produced ${chunks.length} chunks`);
     chunks.forEach((c, i) => console.error(`Chunk[${i}]:`, c.slice(0, 60)));
       const vecs = await embed(chunks);
