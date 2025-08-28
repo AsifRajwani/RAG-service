@@ -1,3 +1,7 @@
+# Requirements
+
+This project requires **Node.js version 22.15.x or above** (download from https://nodejs.org/).
+
 # How to Run and Test the MCP Server
 
 ## Setup and Installation
