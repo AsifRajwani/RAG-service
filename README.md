@@ -1,3 +1,21 @@
+# RAG
+
+📌 **Demo Overview**
+
+Hands-on demo of AI orchestration with LLMs and MCP servers, fully local setup.
+
+This repository is part of a larger demo showcasing how to combine:
+
+- Real-time or sample data and proprietary documents (e.g., specifications, promotions, warranties).
+- The vast knowledge and reasoning abilities of a Large Language Model (LLM).
+- MCP Servers, which securely provide data and documents to the AI Agent.
+
+Together, these components demonstrate how an AI Agent can orchestrate across multiple sources to generate deep insights — for example, identifying new product bundles or designing targeted promotions.
+
+👉 This repo is one of several components that make up the full demo.
+
+👉 The [PDF Guide](https://github.com/AsifRajwani/MCP-Server/blob/main/AI%20Agent%20MCP%20Demo.pdf) details all the setup required to run all components locally on your personal computer.
+
 # Requirements
 
 This project requires **Node.js version 22.15.x or above** (download from https://nodejs.org/).
