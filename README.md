@@ -1,4 +1,4 @@
-# RAG
+# RAG-Service
 
 📌 **Demo Overview**
 
