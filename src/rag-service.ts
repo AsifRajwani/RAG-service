@@ -71,30 +71,34 @@ function cosineSim(a: Float32Array, b: Float32Array): number {
   return dot / ((Math.sqrt(na) * Math.sqrt(nb)) || 1e-8);
 }
 
+async function ingestDocuments(clearIndex: boolean = false): Promise<{ files: number; chunks: number }> {
+  if (clearIndex) index = [];
+
+  const files = globSync("**/*.{md,txt}", { cwd: KB_DIR, nodir: true });
+  let added = 0;
+
+  for (const file of files) {
+    console.error(`Working on file: ${file}`);
+    const full = path.join(KB_DIR, file);
+    const text = fs.readFileSync(full, "utf8");
+    const chunks = chunkText(text);
+    console.error(`File: ${file} produced ${chunks.length} chunks`);
+    const vecs = await embed(chunks);
+    for (let i = 0; i < chunks.length; i++) {
+      index.push({ id: `${file}#${i}`, doc: file, text: chunks[i], vector: vecs[i] });
+      added++;
+    }
+  }
+
+  return { files: files.length, chunks: added };
+}
+
 // POST /ingest  { clear?: boolean }
 app.post("/ingest", async (req, res) => {
   try {
     const { clear } = req.body || {};
-    if (clear) index = [];
-
-    const files = globSync("**/*.{md,txt}", { cwd: KB_DIR, nodir: true });
-    let added = 0;
-
-    for (const file of files) {
-      console.error(`Working on file: ${file}`);
-      const full = path.join(KB_DIR, file);
-      const text = fs.readFileSync(full, "utf8");
-      const chunks = chunkText(text);
-      console.error(`File: ${file} produced ${chunks.length} chunks`);
-    chunks.forEach((c, i) => console.error(`Chunk[${i}]:`, c.slice(0, 60)));
-      const vecs = await embed(chunks);
-      for (let i = 0; i < chunks.length; i++) {
-        index.push({ id: `${file}#${i}`, doc: file, text: chunks[i], vector: vecs[i] });
-        added++;
-      }
-    }
-
-    res.json({ ok: true, files: files.length, chunks: added });
+    const result = await ingestDocuments(clear);
+    res.json({ ok: true, ...result });
   } catch (e: any) {
     console.error(e);
     res.status(500).json({ ok: false, error: e.message });
@@ -130,7 +134,14 @@ app.get("/search", async (req, res) => {
 // Health
 app.get("/health", (_req, res) => res.json({ ok: true, chunks: index.length, kb: KB_DIR, model: MODEL }));
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.error(`RAG service listening on http://localhost:${PORT} (kb=${KB_DIR})`);
-  console.error(`First run? POST http://localhost:${PORT}/ingest to build index`);
+  
+  try {
+    console.error('Starting initial document ingestion...');
+    const result = await ingestDocuments(true);
+    console.error(`Successfully ingested ${result.chunks} chunks from ${result.files} files at startup`);
+  } catch (e: any) {
+    console.error('Error during initial ingestion:', e);
+  }
 });
