@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
+import morgan from "morgan";
 import { pipeline } from "@xenova/transformers";
 import { globSync } from "glob";
 
@@ -13,6 +14,10 @@ type RagChunk = {
 };
 
 const app = express();
+
+// Configure morgan for Apache-style access logging
+app.use(morgan('combined'));
+
 app.use(bodyParser.json());
 
 const PORT = process.env.RAG_PORT ? Number(process.env.RAG_PORT) : 4100;
